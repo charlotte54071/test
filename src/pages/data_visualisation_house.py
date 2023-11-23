@@ -69,10 +69,13 @@ layout = html.Div([
         html.Div([
             html.Div(
                 [
-                    html.Label(param, style={'fontSize': '20px', 'marginRight': '15px'}),
-                ], style={'width': '300px', 'display': 'inline-block', 'textAlign': 'right'}),
+                    html.Label(param, style={'fontSize': '20px', 'marginRight': '15px','textAlign': 'right'}),
+                ], style={'width': '30%', 'float': 'left', 'textAlign': 'right'}),
             dcc.Input(id=f'input-{param}', type='number', step='any', value=0 if not df.empty else 0,
-                      style={'fontSize': '16px', 'width': '100px', 'display': 'inline-block'})
+                      min=min_vals[param], max=max_vals[param],
+                      style={'width': '10%', 'float': 'left'}),
+            html.Div(f" Choose value from {min_vals[param]} to {max_vals[param]}",
+                     style={'display': 'inline-block', 'fontSize': '16px', 'marginLeft': '10px','textAlign': 'right'})
         ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '15px'})
         for param in parameters
     ], style={'textAlign': 'center', 'marginBottom': '20px'}),
@@ -149,7 +152,7 @@ def update_3d_mesh_plot(relayoutData):
 def update_bar_chart(selected_clusters):
     bar_data = []
 
-    # 为每个指标分配一个颜色
+    # 为allocate colors for each parameter
     indicator_colors = {
         'UTCI': 'red',
         'GWP': 'green',
@@ -160,7 +163,6 @@ def update_bar_chart(selected_clusters):
 
     for cluster in normalized_avg_df.index:
         for indicator in indicators:
-            # 当前指标的默认颜色
             show_legend = not legend_added[indicator]
             color = indicator_colors[indicator] if cluster in selected_clusters else 'rgba(204, 204, 204, 0.7)'
             bar_data.append(
