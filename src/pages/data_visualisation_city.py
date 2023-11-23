@@ -39,6 +39,7 @@ max_vals = df[parameters].max()
 df_normalized = (df[parameters] - min_vals) / (max_vals - min_vals)
 clusters = sorted(df['cluster'].unique())
 
+# define the layout of the page
 layout = html.Div([
     html.Div([
         dcc.Link('Back to homepage', href='/homepage', style={'fontSize': 18, 'textAlign': 'center', 'family': 'Arial, '
@@ -61,7 +62,9 @@ layout = html.Div([
         clearable=False,
         style={'marginBottom': '24px'}
     ),
-    html.Div(id='box-plots-container-2', style={'marginBottom': '60px'}),
+    html.Div(id='box-plots-container-2', style={'marginBottom': '60px', 'textAlign': 'center', 'family': 'Arial, '
+                                                                                                         'sans'
+                                                                                                         '-serif'}),
 
     html.Div(children='Input your value', style={'height': '50px', 'fontSize': '24px', 'textAlign': 'center'}),
     html.Div([
@@ -85,6 +88,7 @@ layout = html.Div([
 ])
 
 
+# add callback of mesh diagram-> rotate the diagram
 @callback(
     dash.dependencies.Output('3d-mesh-plot-2', 'figure'),
     [dash.dependencies.Input('3d-mesh-plot-2', 'relayoutData')]
@@ -92,7 +96,7 @@ layout = html.Div([
 def update_3d_mesh_plot(relayoutData):
     if df.empty:
         return {}
-
+    # read data from file
     x = df['UTCI']
     y = df['GWP']
     z = df['LCC']
@@ -105,7 +109,7 @@ def update_3d_mesh_plot(relayoutData):
         r_ratio = i / max_x
         g_ratio = j / max_y
         b_ratio = k / max_z
-
+        # （0,101,189) is Tum blue
         rgb_color = (int(0 * r_ratio), int(101 * g_ratio), int(189 * b_ratio))
         colors.append(f'rgb{rgb_color}')
 
@@ -153,6 +157,7 @@ def update_3d_mesh_plot(relayoutData):
     return fig
 
 
+# add callback->show different colors of selected clusters
 @callback(
     dash.dependencies.Output('bar-chart-2', 'figure'),
     [dash.dependencies.Input('cluster-dropdown-2', 'value')]
@@ -160,7 +165,6 @@ def update_3d_mesh_plot(relayoutData):
 def update_bar_chart(selected_clusters):
     bar_data = []
 
-    # 为每个指标分配一个颜色
     indicator_colors = {
         'UTCI': 'red',
         'GWP': 'green',
@@ -171,7 +175,6 @@ def update_bar_chart(selected_clusters):
 
     for cluster in normalized_avg_df.index:
         for indicator in indicators:
-            # 当前指标的默认颜色
             show_legend = not legend_added[indicator]
             color = indicator_colors[indicator] if cluster in selected_clusters else 'rgba(204, 204, 204, 0.7)'
             bar_data.append(
@@ -210,6 +213,7 @@ def update_bar_chart(selected_clusters):
     }
 
 
+# add callbacks which is related to the 'box plot' and 'input'
 @callback(
     [dash.dependencies.Output('box-plots-container-2', 'children'),
      dash.dependencies.Output('best-cluster-output-2', 'children')],
@@ -218,10 +222,12 @@ def update_bar_chart(selected_clusters):
     [dash.dependencies.State(f'input-{param}', 'value') for param in parameters]
 )
 def combined_callback(selected_clusters, n_clicks, *values):
+    # callback_context is a Dash object that gets information about which input has triggered the callback
     ctx = dash.callback_context
     if not ctx.triggered:
         return dash.no_update, dash.no_update
 
+    # find and store which callback is triggered
     trigger_id = ctx.triggered[0]['prop_id'].split('.')[0]
     button_clicked = n_clicks and n_clicks > 0
 
@@ -234,6 +240,7 @@ def combined_callback(selected_clusters, n_clicks, *values):
         param: (value - min_vals[param]) / (max_vals[param] - min_vals[param]) if value is not None else 0 for
         param, value in input_values.items()} if button_clicked else {}
 
+    # check which callback is triggered, if triggered->calculate to get the best cluster
     if trigger_id == 'submit-button' and button_clicked:
         if not all_values_provided or df.empty:
             return dash.no_update, "Please ensure all fields are filled before clicking 'Find Best Cluster'."
@@ -266,7 +273,7 @@ def combined_callback(selected_clusters, n_clicks, *values):
                 showlegend=False,
                 margin=dict(l=80, r=40, t=40, b=120),  # Fixed margins
                 height=600,  # Fixed height
-                width=1500  # Fixed width
+                width=1350  # Fixed width
             )
         }
     )

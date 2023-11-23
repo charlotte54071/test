@@ -263,7 +263,7 @@ def combined_callback(selected_clusters, n_clicks, *values):
                 showlegend=False,
                 margin=dict(l=80, r=40, t=40, b=120),  # Fixed margins
                 height=600,  # Fixed height
-                width=1500  # Fixed width
+                width=1350  # Fixed width
             )
         }
     )
