@@ -1,8 +1,7 @@
 import dash
-from dash import dcc, html,callback
+from dash import dcc, html, callback
 import plotly.graph_objects as go
 import pandas as pd
-
 
 # Read data from the Excel file
 try:
@@ -114,7 +113,21 @@ def update_3d_mesh_plot(relayoutData):
     mesh = go.Mesh3d(x=x, y=y, z=z, colorbar_title='intensity', vertexcolor=colors, opacity=0.7, colorscale=None)
 
     layout = go.Layout(
-        scene=dict(aspectmode="cube"),
+        scene=dict(
+            aspectmode="cube",
+            xaxis=dict(
+                title='UTCI',
+                titlefont=dict(color='red')  # Red color for x-axis title
+            ),
+            yaxis=dict(
+                title='GWP',
+                titlefont=dict(color='green')  # Green color for y-axis title
+            ),
+            zaxis=dict(
+                title='LCC',
+                titlefont=dict(color='blue')  # Blue color for z-axis title
+            )
+        ),
         title={
             'text': 'Handlungsspielraum',
             'y': 0.9,  # define the 'y' coordinate of title
@@ -124,11 +137,6 @@ def update_3d_mesh_plot(relayoutData):
 
         }
     )
-
-    # title of x,y,z
-    layout.scene.xaxis.title = 'UTCI'
-    layout.scene.yaxis.title = 'GWP'
-    layout.scene.zaxis.title = 'LCC'
 
     fig = go.Figure(data=[mesh], layout=layout)
 
@@ -222,7 +230,9 @@ def combined_callback(selected_clusters, n_clicks, *values):
     all_values_provided = all(value is not None for value in input_values.values())
 
     # Normalize user inputs or set to zero if not provided
-    normalized_input_values = {param: (value - min_vals[param]) / (max_vals[param] - min_vals[param]) if value is not None else 0 for param, value in input_values.items()} if button_clicked else {}
+    normalized_input_values = {
+        param: (value - min_vals[param]) / (max_vals[param] - min_vals[param]) if value is not None else 0 for
+        param, value in input_values.items()} if button_clicked else {}
 
     if trigger_id == 'submit-button' and button_clicked:
         if not all_values_provided or df.empty:
@@ -242,7 +252,8 @@ def combined_callback(selected_clusters, n_clicks, *values):
         # Add red dots to denote the normalized values of user input if the submit button has been clicked at least once
         if button_clicked:
             user_input_normalized = normalized_input_values.get(parameter, 0)
-            traces.append(go.Scatter(x=[parameter], y=[user_input_normalized], mode='markers', marker=dict(color='red', size=10)))
+            traces.append(
+                go.Scatter(x=[parameter], y=[user_input_normalized], mode='markers', marker=dict(color='red', size=10)))
 
     box_plot = dcc.Graph(
         figure={
@@ -260,9 +271,3 @@ def combined_callback(selected_clusters, n_clicks, *values):
         }
     )
     return box_plot, best_cluster_output
-
-
-
-
-
-

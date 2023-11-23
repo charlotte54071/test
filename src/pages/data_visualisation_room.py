@@ -114,7 +114,21 @@ def update_3d_mesh_plot(relayoutData):
     mesh = go.Mesh3d(x=x, y=y, z=z, colorbar_title='intensity', vertexcolor=colors, opacity=0.7, colorscale=None)
 
     layout = go.Layout(
-        scene=dict(aspectmode="cube"),
+        scene=dict(
+            aspectmode="cube",
+            xaxis=dict(
+                title='UTCI',
+                titlefont=dict(color='red')  # Red color for x-axis title
+            ),
+            yaxis=dict(
+                title='GWP',
+                titlefont=dict(color='green')  # Green color for y-axis title
+            ),
+            zaxis=dict(
+                title='LCC',
+                titlefont=dict(color='blue')  # Blue color for z-axis title
+            )
+        ),
         title={
             'text': 'Handlungsspielraum',
             'y': 0.9,  # define the 'y' coordinate of title
@@ -124,11 +138,6 @@ def update_3d_mesh_plot(relayoutData):
 
         }
     )
-
-    # title of x,y,z
-    layout.scene.xaxis.title = 'UTCI'
-    layout.scene.yaxis.title = 'GWP'
-    layout.scene.zaxis.title = 'LCC'
 
     fig = go.Figure(data=[mesh], layout=layout)
 
