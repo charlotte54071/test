@@ -58,6 +58,7 @@ layout = html.Div([
             ], style=table_style)
         ], style={'display': 'inline-block','verticalAlign': 'middle', 'width': '30%'})
     ], style={'textAlign': 'center','marginBottom':30}),
+
     html.Div(
         [
             html.A(

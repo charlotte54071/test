@@ -8,6 +8,7 @@ icons_texts_left = [('/assets/Baumanteil.png','Baumanteil [%]\nAnteil von mit B�
                ('/assets/Kronentransparenz_Sommer.png','Kronentransparenz Sommer [%]\nBelaubungszustand April bis September'),
                ('/assets/Fassade_PV_Ost_West.png','Fassade PV Ost-West [%]\nAnteil der mit PV belegten Fassadenfläche'),
                ]
+
 icons_texts_right = [('/assets/Fensterflächenanteil .png','Fensterflächenanteil [%]\nAnteil der Fenster an der Wandfläche'),
                ('/assets/Gesamtenergiedurchlassgrad.png','Gesamtenergiedurchlassgrad (g-Wert) [-]\nAnteil der eintretenden Solarstrahlung'),
                ('/assets/Gründachdicke.png','Gründachdicke [m]\nDicke extensiver Dachbegrünung'),
@@ -38,6 +39,7 @@ layout = html.Div([
             for icon_path, description in icons_texts_right
         ], style={'width': '40%', 'display': 'inline-block', 'verticalAlign': 'top','marginTop':40}),
     ], style={'textAlign': 'right'}),
+
     html.Div([
         dcc.Link('Back to homepage', href='/homepage', style={
             'fontSize': '18px',

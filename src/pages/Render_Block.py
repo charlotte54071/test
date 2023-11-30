@@ -99,7 +99,13 @@ layout = html.Div([
                             'marginTop':260})
 
         ], style={'display': 'flex', 'width': '100%'}),
-    ])
+    ]),
+    html.Div([
+        dcc.Link('Back to homepage', href='/homepage', style={
+            'fontSize': '18px',
+            'fontFamily': 'Arial, sans-serif'
+        }),
+    ], style={'textAlign': 'left'})
 
 ])
 
@@ -130,11 +136,11 @@ def update_3d_mesh_plot(relayoutData):
         colors.append(f'rgb{rgb_color}')
 
     # create mesh 3d
-    mesh = go.Mesh3d(x=x, y=y, z=z, colorbar_title='intensity', vertexcolor=colors, opacity=0.7, colorscale=None)
+    mesh = go.Mesh3d(x=x, y=y, z=z, vertexcolor=colors, opacity=0.7, colorscale=None)
 
-    layout = go.Layout(
+    mesh_layout = go.Layout(
         scene=dict(
-            aspectmode="cube",
+
             xaxis=dict(
                 title='UTCI',
                 titlefont=dict(color='red')  # Red color for x-axis title
@@ -158,7 +164,7 @@ def update_3d_mesh_plot(relayoutData):
         }
     )
 
-    fig = go.Figure(data=[mesh], layout=layout)
+    fig = go.Figure(data=[mesh], layout=mesh_layout)
 
     fig.update_layout(
         title=dict(text='Handlungsspielraum',
@@ -280,6 +286,7 @@ def combined_callback(selected_clusters, n_clicks, *values):
         traces.append(go.Box(y=filtered_df[parameter], name=parameter, boxpoints='all', jitter=0.3, pointpos=-1.8))
         # Add red dots to denote the normalized values of user input if the submit button has been clicked at least once
         if button_clicked:
+            # get normalized input, if no input ,get 0
             user_input_normalized = normalized_input_values.get(parameter, 0)
             traces.append(
                 go.Scatter(x=[parameter], y=[user_input_normalized], mode='markers', marker=dict(color='red', size=10)))

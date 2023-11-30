@@ -97,7 +97,13 @@ layout = html.Div([
                             'marginTop': 260})
 
         ], style={'display': 'flex', 'width': '100%'}),
-    ])
+    ]),
+    html.Div([
+        dcc.Link('Back to homepage', href='/homepage', style={
+            'fontSize': '18px',
+            'fontFamily': 'Arial, sans-serif'
+        }),
+    ], style={'textAlign': 'left'})
 
 ])
 
@@ -127,7 +133,7 @@ def update_3d_mesh_plot(relayoutData):
         colors.append(f'rgb{rgb_color}')
 
     # create mesh 3d
-    mesh = go.Mesh3d(x=x, y=y, z=z, colorbar_title='intensity', vertexcolor=colors, opacity=0.7, colorscale=None)
+    mesh = go.Mesh3d(x=x, y=y, z=z, vertexcolor=colors, opacity=0.7, colorscale=None)
 
     layout = go.Layout(
         scene=dict(
