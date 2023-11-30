@@ -1,30 +1,50 @@
-import dash
-from dash import dcc, html, callback
-import plotly.graph_objects as go
-import pandas as pd
+from dash import Dash, html,dcc
 
-# Assuming the icons and texts are stored in a list of tuples as (icon_path, description)
-icons_texts = [
-    # ... (your icons and texts from the screenshot)
-]
+icons_texts_left = [('/assets/Baumanteil.png','Baumanteil [%]\nAnteil von mit Bäumen besetzter Spots'),
+               ('/assets/Batterie.png','Batterie [kWh]\nKapazität eines PV Stromspeichers'),
+               ('/assets/Photovoltaik.png','Photovoltaik (PV) Dach [%]\nAnteil der mit PV belegten Dachfläche'),
+               ('/assets/PV_Fassade_Süd.png','PV Fassade Süd [%]\nAnteil der mit PV belegten Fassadenfläche'),
+               ('/assets/Kronentransparenz_Winter.png','Kronentransparenz Winter [%]\nBelaubungszustand Oktober bis März'),
+               ('/assets/Kronentransparenz_Sommer.png','Kronentransparenz Sommer [%]\nBelaubungszustand April bis September'),
+               ('/assets/Fassade_PV_Ost_West.png','Fassade PV Ost-West [%]\nAnteil der mit PV belegten Fassadenfläche'),
+               ]
+icons_texts_right = [('/assets/Fensterflächenanteil .png','Fensterflächenanteil [%]\nAnteil der Fenster an der Wandfläche'),
+               ('/assets/Gesamtenergiedurchlassgrad.png','Gesamtenergiedurchlassgrad (g-Wert) [-]\nAnteil der eintretenden Solarstrahlung'),
+               ('/assets/Gründachdicke.png','Gründachdicke [m]\nDicke extensiver Dachbegrünung'),
+               ('/assets/Albedo_Fassade.png','Albedo Fassade [-]\nRückstrahlung Fassade, Asphalt ca. 0,15'),
+               ('/assets/Kronendurchmesser .png','Kronendurchmesser [m]\nDurchmesser der Baumkrone'),
+               ('/assets/Baumhöhe.png','Baumhöhe [m]\nHöhe vom Boden aus gemessen'),
+               ('/assets/Straßenbreite.png','Straßenbreite [m]\nStraße zwischen Gebäuden'),
+               ]
 
 layout = html.Div([
+    html.H3('Allgemeine Erläuterungen',style={'textAlign': 'center','marginTop':20}),
     html.Div([
-        dcc.Link('Back to homepage', href='/homepage', style={'fontSize': 18, 'textAlign': 'center', 'family': 'Arial, '
-                                                                                                               'sans'
-                                                                                                               '-serif'}),
-        # add back link
-        html.Br(),  # add the change line
-    ]),
-    html.H3('Legend'),
-    html.Div([
+        # Left Column
         html.Div([
-            # Looping through each icon and text to create a segment on the page
             html.Div([
-                html.Img(src=icon_path, style={'height': '50px'}),  # Adjust path as necessary
-                html.P(description),
-            ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '10px'})
-            for icon_path, description in icons_texts
-        ]),
-    ], style={'textAlign': 'center'})
+                html.Img(src=icon_path, style={'height': '60px'}),
+                html.Div([html.Div(line, style={'marginBottom': '0px','textAlign': 'left','marginLeft':15}) for line in description.split('\n')]),
+            ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '20px'})
+            for icon_path, description in icons_texts_left
+        ], style={'width': '40%', 'display': 'inline-block', 'verticalAlign': 'top','marginTop':40}),
+
+        # Right Column
+        html.Div([
+            html.Div([
+                html.Img(src=icon_path, style={'height': '60px'}),
+                html.Div([html.Div(line, style={'marginBottom': '0px','textAlign': 'left','marginLeft':15}) for line in description.split('\n')]),
+            ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '20px'})
+            for icon_path, description in icons_texts_right
+        ], style={'width': '40%', 'display': 'inline-block', 'verticalAlign': 'top','marginTop':40}),
+    ], style={'textAlign': 'right'}),
+    html.Div([
+        dcc.Link('Back to homepage', href='/homepage', style={
+            'fontSize': '18px',
+            'fontFamily': 'Arial, sans-serif'
+        }),
+    ], style={'textAlign': 'right','marginRight':300})
+
 ])
+
+

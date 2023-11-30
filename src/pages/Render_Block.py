@@ -5,8 +5,8 @@ import pandas as pd
 
 # Read data from the Excel file
 try:
-    df = pd.read_excel('dash_visu_export_city.xlsx', sheet_name='Sheet1')
-    if not all(column in df.columns for column in ['UTCI', 'GWP', 'LCC', 'cluster']):
+    df = pd.read_excel('dash_visu_block.xlsx', sheet_name='Sheet1')
+    if not all(column in df.columns for column in ['UTCI', 'GWP', 'LCC', 'cluster',]):
         raise ValueError("Some essential columns are missing from the Excel sheet.")
 except Exception as e:
     print(f"Error reading the Excel file: {e}")
@@ -27,13 +27,7 @@ def normalize(column):
 normalized_avg_df = avg_df[indicators].apply(normalize)
 
 # For Box Plot
-parameters = [
-    "Baumanteil [%]", "PV-Dach [%]", "PV battery capacity", "PV-facade-% south",
-    "Fensterflächenanteil", "Fenster g-Wert", "Gründachstärke",
-    "Kronendurchmesser", "Baumhöhe", "Kronentransparenz Sommer",
-    "Kronentransparenz Winter", "Albedo Fassade", "Straßenbreite", "PV Ost-West Fassade [%]"
-]
-
+parameters = df.columns[:14]
 min_vals = df[parameters].min()
 max_vals = df[parameters].max()
 df_normalized = (df[parameters] - min_vals) / (max_vals - min_vals)
@@ -60,30 +54,52 @@ layout = html.Div([
         value=[clusters[0]],
         multi=True,
         clearable=False,
-        style={'marginBottom': '24px'}
+        style={'marginBottom': '40px'}
     ),
-    html.Div(id='box-plots-container-2', style={'marginBottom': '60px', 'textAlign': 'center', 'family': 'Arial, '
+    html.Div(id='box-plots-container-2', style={'marginBottom': '40px', 'textAlign': 'center', 'family': 'Arial, '
                                                                                                          'sans'
                                                                                                          '-serif'}),
 
     html.Div(children='Input your value', style={'height': '50px', 'fontSize': '24px', 'textAlign': 'center'}),
-    html.Div([
-        html.Div([
-            html.Div(
-                [
-                    html.Label(param, style={'fontSize': '20px', 'marginRight': '15px', 'textAlign': 'right'}),
-                ], style={'width': '30%', 'float': 'left', 'textAlign': 'right'}),
-            dcc.Input(id=f'input-{param}', type='number', step='any', value=0 if not df.empty else 0,
-                      min=min_vals[param], max=max_vals[param],
-                      style={'width': '10%', 'float': 'left'}),
-            html.Div(f" Choose value from {min_vals[param]} to {max_vals[param]}",
-                     style={'display': 'inline-block', 'fontSize': '16px', 'marginLeft': '10px', 'textAlign': 'right'})
-        ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '15px'})
-        for param in parameters
-    ], style={'textAlign': 'center', 'marginBottom': '20px'}),
 
-    html.Button('Find Best Cluster', id='submit-button-2', style={'fontSize': '20px', 'lineHeight': '1.25'}),
-    html.Div(id='best-cluster-output-2', style={'fontSize': '20px', 'textAlign': 'center'})
+    html.Div([
+        # Row containing three columns
+        html.Div([
+            # First column for input fields
+            html.Div([
+                html.Div([
+                    html.Div(
+                        [
+                            html.Label(param, style={'fontSize': '18px', 'marginRight': '15px', 'textAlign': 'right'}),
+                        ], style={'width': '40%', 'float': 'left', 'textAlign': 'right'}),
+                    dcc.Input(id=f'input-{param}', type='number', step='any',
+                              value=df[parameters].median()[param].round(2) if not df.empty else 0,
+                              min=min_vals[param], max=max_vals[param],
+                              style={'width': '15%', 'float': 'left'}),
+                    html.Div(f" Choose value from {min_vals[param].round(2)} to {max_vals[param].round(2)}",
+                             style={'display': 'inline-block', 'fontSize': '16px', 'marginLeft': '10px',
+                                    'textAlign': 'right'})
+                ], style={'display': 'flex', 'alignItems': 'center', 'marginBottom': '15px'})
+                for param in parameters
+            ], style={'width': '40%', 'display': 'inline-block', 'textAlign': 'center'}),  # Adjust the width for column
+
+            # Second column for button
+            html.Div([
+                html.Button('Find Best Cluster', id='submit-button-2',
+                            style={'fontSize': '24px', 'lineHeight': '1.5', 'width': '80%', 'height': '60px'})
+            ], style={'width': '30%', 'display': 'inline-block', 'textAlign': 'center','marginTop':250}),  # Adjust
+            # the width for column
+
+            # Third column for displaying results
+            html.Div(id='best-cluster-output-2',
+                     style={'fontSize': '20px',
+                            'textAlign': 'center',
+                            'width': '30%',
+                            'display': 'inline-block',
+                            'marginTop':260})
+
+        ], style={'display': 'flex', 'width': '100%'}),
+    ])
 
 ])
 
@@ -171,19 +187,24 @@ def update_bar_chart(selected_clusters):
         'LCC': 'blue'
     }
 
+    bar_width = 0.2
+    offset = bar_width * len(indicators) / 2
+
     legend_added = {indicator: False for indicator in indicators}
 
     for cluster in normalized_avg_df.index:
-        for indicator in indicators:
+        for i, indicator in enumerate(indicators):
             show_legend = not legend_added[indicator]
             color = indicator_colors[indicator] if cluster in selected_clusters else 'rgba(204, 204, 204, 0.7)'
+            x_position = cluster - offset + (i + 0.5) * bar_width
             bar_data.append(
                 go.Bar(
-                    x=[f"Cluster{cluster}"],
+                    x=[x_position],
                     y=[normalized_avg_df.loc[cluster, indicator]],
                     name=indicator,
                     marker_color=color,
-                    showlegend=show_legend
+                    showlegend=show_legend,
+                    width=bar_width
                 )
             )
             legend_added[indicator] = True
@@ -199,15 +220,16 @@ def update_bar_chart(selected_clusters):
                               'family': 'Arial, sans-serif',
                               'weight': 'bold'
                           }},
-            'xaxis': {'title': 'Cluster'},
+            'xaxis': {'title': 'Cluster', 'tickvals': list(normalized_avg_df.index),
+                      'ticktext': [f'Cluster {i + 1}' for i in range(len(normalized_avg_df.index))]},
             'yaxis': {
                 'title': 'Ereignis der Aspekte',
                 'tickvals': [0, 0.5, 1],
                 'ticktext': ['Gut', 'Mittel', 'Schlecht']
             },
             'barmode': 'group',
-            'bargap': 0.000001,
-            'bargroupgap': 0.001,
+            'bargap': 0,
+            'bargroupgap': 0,
 
         }
     }
@@ -241,13 +263,13 @@ def combined_callback(selected_clusters, n_clicks, *values):
         param, value in input_values.items()} if button_clicked else {}
 
     # check which callback is triggered, if triggered->calculate to get the best cluster
-    if trigger_id == 'submit-button' and button_clicked:
+    if trigger_id == 'submit-button-2' and button_clicked:
         if not all_values_provided or df.empty:
             return dash.no_update, "Please ensure all fields are filled before clicking 'Find Best Cluster'."
 
         differences = df[parameters].apply(lambda row: sum((row - pd.Series(input_values)) ** 2), axis=1)
         best_cluster = df.loc[differences.idxmin(), 'cluster']
-        best_cluster_output = f'The most suitable cluster for the given parameters is: Cluster {best_cluster}'
+        best_cluster_output = f'The closest cluster for your inputs is: Cluster {best_cluster}'
     else:
         best_cluster_output = dash.no_update
 

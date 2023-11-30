@@ -4,9 +4,9 @@
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import html, dcc,callback
+from dash import html, dcc, callback
 from dash.dependencies import Input, Output
-import pages.homepage, pages.Render_Punkt, pages.Render_Zeile, pages.Render_Block
+import pages.homepage, pages.Render_Punkt, pages.Render_Zeile, pages.Render_Block, pages.Legend
 
 app = dash.Dash(__name__, use_pages=True, external_stylesheets=[dbc.themes.BOOTSTRAP], title="test")
 app.config.suppress_callback_exceptions = True
@@ -19,8 +19,7 @@ app.layout = html.Div([
 
 
 @callback(Output('page-content', 'children'),
-              [Input('url', 'pathname')])
-
+          [Input('url', 'pathname')])
 def display_page(pathname):
     try:
         if pathname == '/app1':
@@ -31,6 +30,8 @@ def display_page(pathname):
             return pages.Render_Punkt.layout
         elif pathname == '/app4':
             return pages.Render_Zeile.layout
+        elif pathname == '/app5':
+            return pages.Legend.layout
         else:
             return pages.homepage.layout  # default 'app1'
     except Exception as e:
